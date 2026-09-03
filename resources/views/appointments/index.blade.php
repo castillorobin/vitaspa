@@ -98,13 +98,44 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                                        <a href="{{ route('appointments.edit', $appointment) }}" class="text-blue-600 hover:text-blue-900 font-medium">Editar</a>
-                                        <form action="{{ route('appointments.destroy', $appointment) }}" method="POST" class="inline" onsubmit="return confirm('¿Seguro que deseas eliminar esta cita?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-rose-600 hover:text-rose-900 font-medium">Eliminar</button>
-                                        </form>
-                                    </td>
+    @if(!empty($appointment->patient->phone))
+        @php
+            // 1. Limpiar guiones, espacios y paréntesis
+            $cleanPhone = preg_replace('/[^0-9]/', '', $appointment->patient->phone);
+            
+            // 2. Si tiene 8 dígitos, anteponer código de El Salvador (+503)
+            if (strlen($cleanPhone) === 8) {
+                $cleanPhone = '503' . $cleanPhone;
+            }
+
+            // 3. Formatear fecha y hora para el mensaje
+            $fechaCita = \Carbon\Carbon::parse($appointment->appointment_date)->format('d/m/Y');
+            $horaCita = \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A');
+
+            // 4. Mensaje predeterminado y codificado
+            $waMessage = rawurlencode("Hola {$appointment->patient->name}, le saludamos de VitaSpa para recordarle su cita de {$appointment->service} programada para el día {$fechaCita} a las {$horaCita}. ¡Le esperamos!");
+        @endphp
+
+        <!-- Botón de WhatsApp -->
+        <a href="https://wa.me/{{ $cleanPhone }}?text={{ $waMessage }}" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           title="Enviar WhatsApp al paciente"
+           class="inline-flex items-center text-emerald-600 hover:text-emerald-800 transition">
+            <svg class="w-5 h-5 inline-block" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12.031 2a9.97 9.97 0 0 0-8.625 15.012L2 22l5.125-1.344A9.97 9.97 0 0 0 12.03 22c5.519 0 10-4.481 10-10s-4.481-10-10-9.969zm0 18.234c-1.562 0-3.094-.406-4.437-1.188l-.313-.188-3.281.859.875-3.188-.203-.328a8.21 8.21 0 0 1-1.281-4.406c0-4.547 3.703-8.25 8.25-8.25 4.547 0 8.25 3.703 8.25 8.25s-3.703 8.25-8.25 8.25zm4.531-6.188c-.25-.125-1.469-.719-1.703-.797-.219-.078-.391-.125-.562.125-.172.25-.656.797-.797.969-.156.172-.313.188-.563.063-.25-.125-1.062-.391-2.031-1.25a7.587 7.587 0 0 1-1.391-1.734c-.156-.25-.016-.391.109-.516.109-.109.25-.281.375-.422.125-.141.172-.25.25-.422.078-.172.031-.328-.016-.453-.063-.125-.563-1.359-.766-1.859-.203-.5-.406-.438-.563-.438h-.484c-.172 0-.453.063-.688.328-.25.25-.938.922-.938 2.25s.953 2.609 1.094 2.797c.141.188 1.875 2.875 4.547 4.031.641.281 1.141.453 1.531.578.641.203 1.234.172 1.703.109.516-.078 1.594-.656 1.813-1.281.234-.625.234-1.172.156-1.281-.063-.125-.234-.188-.484-.313z"/>
+            </svg>
+        </a>
+    @endif
+
+    <a href="{{ route('appointments.edit', $appointment) }}" class="text-blue-600 hover:text-blue-900 font-medium">Editar</a>
+
+    <form action="{{ route('appointments.destroy', $appointment) }}" method="POST" class="inline" onsubmit="return confirm('¿Seguro que deseas eliminar esta cita?');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="text-rose-600 hover:text-rose-900 font-medium">Eliminar</button>
+    </form>
+</td>
                                 </tr>
                             @empty
                                 <tr>

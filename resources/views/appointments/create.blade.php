@@ -81,7 +81,7 @@
                             <label for="service" class="block text-sm font-medium text-gray-700">Servicio *</label>
                             <select name="service" id="service" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
                                 <option value="">Selecciona un servicio</option>
-                                @foreach(['Combinado', 'Craneo', 'Pies', 'Espalda'] as $srv)
+                                @foreach(['Masaje Terapeutico', 'Masaje relajante', 'Masaje combinado', 'Masaje dreno linfatico', 'Masaje de descarga o deportivo', 'Masaje craneofacial', 'Masaje de reflexologia podal', 'Masaje piernas cansadas', 'Masaje terapeutico cuppin', 'Masaje relajante con piedras calientes', 'Masaje terapeutico con termoterapia' ] as $srv)
                                     <option value="{{ $srv }}" {{ old('service') == $srv ? 'selected' : '' }}>{{ $srv }}</option>
                                 @endforeach
                             </select>

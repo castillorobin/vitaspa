@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('patient_id')->constrained('patients')->cascadeOnDelete();
+            $table->foreignId('user_id')->comment('Usuario/terapeuta que atendió')->constrained('users')->restrictOnDelete();
+            $table->date('appointment_date');
+            $table->time('appointment_time');
+            $table->integer('duration_minutes')->default(60);
+            $table->enum('service', ['Combinado', 'Craneo', 'Pies', 'Espalda']);
+            $table->enum('status', ['Pendiente', 'Completada', 'Cancelada'])->default('Pendiente');
+            $table->decimal('price', 10, 2);
+            $table->enum('payment_method', ['Efectivo', 'Tarjeta', 'Transferencia']);
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

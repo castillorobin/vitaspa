@@ -9,32 +9,40 @@
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white p-6 rounded-lg shadow-sm">
 
-                @if($patients->isEmpty())
-                    <div class="mb-4 p-4 bg-amber-50 border-l-4 border-amber-400 text-amber-800 text-sm">
-                        No hay pacientes registrados aún. Primero debes <a href="{{ route('patients.create') }}" class="font-bold underline">crear un paciente</a>.
-                    </div>
-                @endif
-
                 <form action="{{ route('appointments.store') }}" method="POST" class="space-y-5">
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Selector de Paciente con Botón de Creación Rápida -->
                         <div>
-                            <label for="patient_id" class="block text-sm font-medium text-gray-700">Paciente *</label>
-                            <select name="patient_id" id="patient_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                                <option value="">Selecciona un paciente</option>
-                                @foreach($patients as $patient)
-                                    <option value="{{ $patient->id }}" {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
-                                        {{ $patient->name }} ({{ $patient->phone ?? 'Sin teléfono' }})
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="patient_id" class="block text-sm font-medium text-gray-700">Paciente *</label>
+                                <button type="button" onclick="openPatientModal()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-800 transition">
+                                    + Registrar
+                                </button>
+                            </div>
+                            <div class="flex gap-2">
+                                <select name="patient_id" id="patient_id" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+                                    <option value="">Selecciona un paciente</option>
+                                    @foreach($patients as $patient)
+                                        <option value="{{ $patient->id }}" {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
+                                            {{ $patient->name }} ({{ $patient->phone ?? 'Sin teléfono' }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <button type="button" onclick="openPatientModal()" title="Agregar nuevo paciente" 
+                                        class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md flex items-center justify-center transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                </button>
+                            </div>
                             @error('patient_id') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
-                            <label for="user_id" class="block text-sm font-medium text-gray-700">Atendido por *</label>
-                            <select name="user_id" id="user_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+                            <label for="user_id" class="block text-sm font-medium text-gray-700 mb-1">Atendido por *</label>
+                            <select name="user_id" id="user_id" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}" {{ old('user_id', auth()->id()) == $user->id ? 'selected' : '' }}>
                                         {{ $user->name }}
@@ -129,4 +137,116 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL PARA CREAR PACIENTE RÁPIDO -->
+    <div id="patientModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Registrar Nuevo Paciente</h3>
+
+            <div id="modalError" class="hidden mb-4 p-3 bg-rose-100 border border-rose-300 text-rose-700 text-xs rounded"></div>
+
+            <form id="quickPatientForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700">Nombre completo *</label>
+                    <input type="text" id="modal_name" required class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700">Teléfono</label>
+                        <input type="text" id="modal_phone" placeholder="7123-4567" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700">Correo</label>
+                        <input type="email" id="modal_email" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700">Dirección</label>
+                    <input type="text" id="modal_address" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t">
+                    <button type="button" onclick="closePatientModal()" class="px-4 py-2 text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btnSavePatient" class="px-4 py-2 text-xs text-white bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold">
+                        Guardar y Seleccionar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT PARA GESTIONAR EL MODAL Y LA PETICIÓN AJAX -->
+    <script>
+        function openPatientModal() {
+            document.getElementById('patientModal').classList.remove('hidden');
+            document.getElementById('modal_name').focus();
+        }
+
+        function closePatientModal() {
+            document.getElementById('patientModal').classList.add('hidden');
+            document.getElementById('quickPatientForm').reset();
+            document.getElementById('modalError').classList.add('hidden');
+        }
+
+        document.getElementById('quickPatientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('btnSavePatient');
+            btn.disabled = true;
+            btn.innerText = 'Guardando...';
+
+            const payload = {
+                name: document.getElementById('modal_name').value,
+                phone: document.getElementById('modal_phone').value,
+                email: document.getElementById('modal_email').value,
+                address: document.getElementById('modal_address').value,
+            };
+
+            fetch("{{ route('patients.store') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error al registrar paciente');
+                }
+                return data;
+            })
+            .then(data => {
+                const patient = data.patient;
+
+                // Crear nueva opción en el select
+                const select = document.getElementById('patient_id');
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.text = `${patient.name} (${patient.phone || 'Sin teléfono'})`;
+                option.selected = true;
+
+                // Agregar y seleccionar
+                select.appendChild(option);
+
+                // Cerrar modal
+                closePatientModal();
+            })
+            .catch(error => {
+                const errBox = document.getElementById('modalError');
+                errBox.innerText = error.message;
+                errBox.classList.remove('hidden');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = 'Guardar y Seleccionar';
+            });
+        });
+    </script>
 </x-app-layout>

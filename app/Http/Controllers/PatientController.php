@@ -29,19 +29,27 @@ class PatientController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name'    => 'required|string|max:150',
-            'phone'   => 'nullable|string|max:30',
-            'email'   => 'nullable|email|max:150',
-            'address' => 'nullable|string|max:255',
+{
+    $validated = $request->validate([
+        'name'    => 'required|string|max:150',
+        'phone'   => 'nullable|string|max:30',
+        'email'   => 'nullable|email|max:150',
+        'address' => 'nullable|string|max:255',
+    ]);
+
+    $patient = Patient::create($validated);
+
+    // Si la petición viene vía Fetch/AJAX desde el modal
+    if ($request->wantsJson() || $request->ajax()) {
+        return response()->json([
+            'success' => true,
+            'patient' => $patient,
         ]);
-
-        Patient::create($validated);
-
-        return redirect()->route('patients.index')
-            ->with('success', 'Paciente registrado exitosamente.');
     }
+
+    return redirect()->route('patients.index')
+        ->with('success', 'Paciente registrado exitosamente.');
+}
 
     public function edit(Patient $patient)
     {

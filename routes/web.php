@@ -17,6 +17,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('appointments', AppointmentController::class);
     
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::middleware('auth')->group(function () {
+    // Rutas requeridas por la barra de navegación de Breeze
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    
+});
 });
 
 require __DIR__.'/auth.php';

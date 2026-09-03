@@ -3,63 +3,91 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $status = $request->input('status');
+        $date = $request->input('date');
+
+        $appointments = Appointment::with(['patient', 'attendedBy'])
+            ->when($status, fn($q) => $q->where('status', $status))
+            ->when($date, fn($q) => $q->whereDate('appointment_date', $date))
+            ->orderBy('appointment_date', 'desc')
+            ->orderBy('appointment_time', 'desc')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('appointments.index', compact('appointments', 'status', 'date'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $patients = Patient::orderBy('name')->get();
+        $users = User::orderBy('name')->get();
+
+        return view('appointments.create', compact('patients', 'users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'patient_id'       => 'required|exists:patients,id',
+            'user_id'          => 'required|exists:users,id',
+            'appointment_date' => 'required|date',
+            'appointment_time' => 'required',
+            'duration_minutes' => 'required|integer|min:15|max:240',
+            'service'          => 'required|in:Combinado,Craneo,Pies,Espalda',
+            'status'           => 'required|in:Pendiente,Completada,Cancelada',
+            'price'            => 'required|numeric|min:0',
+            'payment_method'   => 'required|in:Efectivo,Tarjeta,Transferencia',
+            'notes'            => 'nullable|string|max:1000',
+        ]);
+
+        Appointment::create($validated);
+
+        return redirect()->route('appointments.index')
+            ->with('success', 'Cita agendada exitosamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Appointment $appointment)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Appointment $appointment)
     {
-        //
+        $patients = Patient::orderBy('name')->get();
+        $users = User::orderBy('name')->get();
+
+        return view('appointments.edit', compact('appointment', 'patients', 'users'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Appointment $appointment)
     {
-        //
+        $validated = $request->validate([
+            'patient_id'       => 'required|exists:patients,id',
+            'user_id'          => 'required|exists:users,id',
+            'appointment_date' => 'required|date',
+            'appointment_time' => 'required',
+            'duration_minutes' => 'required|integer|min:15|max:240',
+            'service'          => 'required|in:Combinado,Craneo,Pies,Espalda',
+            'status'           => 'required|in:Pendiente,Completada,Cancelada',
+            'price'            => 'required|numeric|min:0',
+            'payment_method'   => 'required|in:Efectivo,Tarjeta,Transferencia',
+            'notes'            => 'nullable|string|max:1000',
+        ]);
+
+        $appointment->update($validated);
+
+        return redirect()->route('appointments.index')
+            ->with('success', 'Cita actualizada correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Appointment $appointment)
     {
-        //
+        $appointment->delete();
+
+        return redirect()->route('appointments.index')
+            ->with('success', 'Cita eliminada correctamente.');
     }
 }

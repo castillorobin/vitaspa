@@ -14,38 +14,53 @@
                 </div>
             @endif
 
-            <!-- Filtros + Botón Nueva Cita -->
-            <div class="bg-white p-4 rounded-lg shadow-sm flex flex-col md:flex-row gap-3 justify-between items-center">
-                <form method="GET" action="{{ route('appointments.index') }}" class="w-full md:w-auto flex flex-wrap gap-2 items-center">
-                    <input type="date" name="date" value="{{ $date }}" 
-                        class="rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+            <!-- Barra de Filtros, Buscador y Botón Agendar Cita -->
+<div class="bg-white p-4 rounded-lg shadow-sm flex flex-col xl:flex-row gap-3 justify-between items-start xl:items-center">
+    <form method="GET" action="{{ route('appointments.index') }}" class="w-full xl:w-auto flex flex-wrap gap-2 items-center">
+        <!-- Campo Buscador General -->
+        <div class="relative flex-1 min-w-[220px]">
+            <input type="text" name="search" value="{{ $search ?? '' }}" 
+                placeholder="Buscar paciente, teléfono, terapeuta..." 
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm pl-9">
+            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+        </div>
 
-                    <select name="status" class="rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                        <option value="">Todos los Estados</option>
-                        <option value="Pendiente" {{ $status === 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
-                        <option value="Completada" {{ $status === 'Completada' ? 'selected' : '' }}>Completada</option>
-                        <option value="Cancelada" {{ $status === 'Cancelada' ? 'selected' : '' }}>Cancelada</option>
-                    </select>
+        <!-- Filtro por Fecha -->
+        <input type="date" name="date" value="{{ $date ?? '' }}" 
+            class="rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
 
-                    <button type="submit" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-md text-sm font-medium transition">
-                        Filtrar
-                    </button>
+        <!-- Filtro por Estado -->
+        <select name="status" class="rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+            <option value="">Todos los Estados</option>
+            <option value="Pendiente" {{ ($status ?? '') === 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
+            <option value="Completada" {{ ($status ?? '') === 'Completada' ? 'selected' : '' }}>Completada</option>
+            <option value="Cancelada" {{ ($status ?? '') === 'Cancelada' ? 'selected' : '' }}>Cancelada</option>
+        </select>
 
-                    @if($date || $status)
-                        <a href="{{ route('appointments.index') }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm transition">
-                            Limpiar
-                        </a>
-                    @endif
-                </form>
+        <!-- Botón Buscar / Filtrar -->
+        <button type="submit" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-md text-sm font-medium transition">
+            Buscar
+        </button>
 
-                <a href="{{ route('appointments.create') }}" 
-                   class="w-full md:w-auto inline-flex justify-center items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-md shadow transition">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    + Agendar Cita
-                </a>
-            </div>
+        <!-- Botón Limpiar si hay parámetros activos -->
+        @if(!empty($search) || !empty($date) || !empty($status))
+            <a href="{{ route('appointments.index') }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm transition">
+                Limpiar
+            </a>
+        @endif
+    </form>
+
+    <!-- Botón Agendar Cita -->
+    <a href="{{ route('appointments.create') }}" 
+       class="w-full xl:w-auto inline-flex justify-center items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-md shadow transition whitespace-nowrap">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        + Agendar Cita
+    </a>
+</div>
 
             <!-- Tabla de Citas -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">

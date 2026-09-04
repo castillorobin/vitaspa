@@ -11,18 +11,31 @@ class AppointmentController extends Controller
 {
     public function index(Request $request)
 {
+    $search = $request->input('search');
     $status = $request->input('status');
     $date = $request->input('date');
 
     $appointments = Appointment::with(['patient', 'attendedBy'])
+        ->when($search, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('service', 'like', "%{$search}%")
+                  ->orWhereHas('patient', function ($pQuery) use ($search) {
+                      $pQuery->where('name', 'like', "%{$search}%")
+                             ->orWhere('phone', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('attendedBy', function ($uQuery) use ($search) {
+                      $uQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
+        })
         ->when($status, fn($q) => $q->where('status', $status))
         ->when($date, fn($q) => $q->whereDate('appointment_date', $date))
-        ->orderBy('appointment_date', 'desc') // Agrupa por día
-        ->orderBy('appointment_time', 'asc')  // Ordena de más temprano a más tarde
+        ->orderBy('appointment_date', 'desc')
+        ->orderBy('appointment_time', 'asc')
         ->paginate(15)
         ->withQueryString();
 
-    return view('appointments.index', compact('appointments', 'status', 'date'));
+    return view('appointments.index', compact('appointments', 'search', 'status', 'date'));
 }
 
     public function create()

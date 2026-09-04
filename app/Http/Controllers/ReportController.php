@@ -1,11 +1,14 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use OpenSpout\Writer\XLSX\Writer;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Common\Entity\Style\Color;
+use OpenSpout\Common\Entity\Style\CellAlignment;
 
 class ReportController extends Controller
 {
@@ -42,7 +45,7 @@ class ReportController extends Controller
         ));
     }
 
-    public function export(Request $request): StreamedResponse
+    public function export(Request $request)
     {
         $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());
@@ -59,56 +62,98 @@ class ReportController extends Controller
             ->orderBy('appointment_time', 'asc')
             ->get();
 
-        $fileName = 'Reporte_VitaSpa_' . $startDate . '_al_' . $endDate . '.csv';
+        $fileName = 'Reporte_VitaSpa_' . $startDate . '_al_' . $endDate . '.xlsx';
+        $tempPath = tempnam(sys_get_temp_dir(), 'vitaspa_') . '.xlsx';
 
+        // Inicializar el escritor de XLSX
+        $writer = new Writer();
+        $writer->openToFile($tempPath);
+
+        // --- ESTILOS ---
+        // 1. Título principal
+        $titleStyle = (new Style())
+            ->setFontBold()
+            ->setFontSize(15)
+            ->setFontColor(Color::rgb(6, 78, 59)); // Verde esmeralda oscuro
+
+        // 2. Subtítulo / Rango de fechas
+        $subTitleStyle = (new Style())
+            ->setFontItalic()
+            ->setFontSize(10)
+            ->setFontColor(Color::rgb(107, 114, 128));
+
+        // 3. Encabezados de tabla
+        $headerStyle = (new Style())
+            ->setFontBold()
+            ->setFontSize(11)
+            ->setFontColor(Color::WHITE)
+            ->setBackgroundColor(Color::rgb(5, 150, 105)); // Verde esmeralda VitaSpa
+
+        // 4. Filas normales
+        $bodyStyle = (new Style())
+            ->setFontSize(10);
+
+        // --- CONTENIDO ---
+        // Fila 1: Encabezado principal solicitado
+        $writer->addRow(Row::fromValues(['Reporte de citas de VitaSpa'], $titleStyle));
+
+        // Fila 2: Subtítulo con rango y fecha de emisión
+        $writer->addRow(Row::fromValues([
+            'Período: ' . \Carbon\Carbon::parse($startDate)->format('d/m/Y') . ' al ' . \Carbon\Carbon::parse($endDate)->format('d/m/Y') . ' | Generado: ' . now()->format('d/m/Y h:i A')
+        ], $subTitleStyle));
+
+        // Fila 3: Espacio en blanco
+        $writer->addRow(Row::fromValues(['']));
+
+        // Fila 4: Columnas
         $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"$fileName\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
+            'ID',
+            'Fecha',
+            'Hora',
+            'Paciente',
+            'Teléfono',
+            'Servicio',
+            'Duración (min)',
+            'Atendido Por',
+            'Precio ($)',
+            'Método de Pago',
+            'Estado',
+            'Observaciones'
         ];
+        $writer->addRow(Row::fromValues($headers, $headerStyle));
 
-        return response()->stream(function () use ($appointments) {
-            $file = fopen('php://output', 'w');
-            
-            // BOM para compatibilidad con Microsoft Excel y caracteres en español (tildes, ñ)
-            fputs($file, "\xEF\xBB\xBF");
+        // Filas de datos
+        foreach ($appointments as $item) {
+            $dataRow = [
+                $item->id,
+                \Carbon\Carbon::parse($item->appointment_date)->format('d/m/Y'),
+                \Carbon\Carbon::parse($item->appointment_time)->format('h:i A'),
+                $item->patient->name ?? 'N/A',
+                $item->patient->phone ?? 'Sin teléfono',
+                $item->service,
+                $item->duration_minutes,
+                $item->attendedBy->name ?? 'N/A',
+                number_format($item->price, 2, '.', ''),
+                $item->payment_method,
+                $item->status,
+                $item->notes ?? '',
+            ];
+            $writer->addRow(Row::fromValues($dataRow, $bodyStyle));
+        }
 
-            // Cabecera del archivo
-            fputcsv($file, [
-                'ID',
-                'Fecha',
-                'Hora',
-                'Paciente',
-                'Teléfono Paciente',
-                'Servicio',
-                'Duración (min)',
-                'Atendido Por',
-                'Precio ($)',
-                'Método de Pago',
-                'Estado',
-                'Notas'
-            ]);
+        // Fila de resumen al final
+        $totalIngresos = $appointments->where('status', 'Completada')->sum('price');
+        $writer->addRow(Row::fromValues(['']));
+        $writer->addRow(Row::fromValues([
+            '', '', '', '', '', '', '', 'Total Recaudado (Completadas):', 
+            number_format($totalIngresos, 2, '.', '')
+        ], (new Style())->setFontBold()->setFontSize(11)));
 
-            foreach ($appointments as $item) {
-                fputcsv($file, [
-                    $item->id,
-                    \Carbon\Carbon::parse($item->appointment_date)->format('d/m/Y'),
-                    \Carbon\Carbon::parse($item->appointment_time)->format('h:i A'),
-                    $item->patient->name ?? 'N/A',
-                    $item->patient->phone ?? 'Sin teléfono',
-                    $item->service,
-                    $item->duration_minutes,
-                    $item->attendedBy->name ?? 'N/A',
-                    number_format($item->price, 2, '.', ''),
-                    $item->payment_method,
-                    $item->status,
-                    $item->notes ?? '',
-                ]);
-            }
+        $writer->close();
 
-            fclose($file);
-        }, 200, $headers);
+        // Enviar descarga y eliminar el archivo temporal
+        return response()->download($tempPath, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
     }
 }

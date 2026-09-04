@@ -49,12 +49,12 @@
                         </button>
 
                         <a href="{{ route('reports.export', request()->query()) }}" 
-                           class="inline-flex justify-center items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-md transition shadow-sm"
-                           title="Descargar archivo en formato Excel (CSV)">
+                        class="inline-flex justify-center items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-md transition shadow-sm"
+                        title="Descargar reporte en formato Excel (.xlsx)">
                             <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                             </svg>
-                            Exportar
+                            Descargar Excel
                         </a>
                     </div>
                 </form>

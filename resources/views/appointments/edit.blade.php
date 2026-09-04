@@ -48,12 +48,29 @@
                         </div>
 
                         <div>
-                            <label for="appointment_time" class="block text-sm font-medium text-gray-700">Hora *</label>
-                            <input type="time" name="appointment_time" id="appointment_time" 
-                                value="{{ old('appointment_time', \Carbon\Carbon::parse($appointment->appointment_time)->format('H:i')) }}" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                            @error('appointment_time') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
-                        </div>
+    <label for="appointment_time" class="block text-sm font-medium text-gray-700">Hora *</label>
+    <select name="appointment_time" id="appointment_time" required
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+        @php
+            $start = \Carbon\Carbon::createFromTime(8, 0);
+            $end = \Carbon\Carbon::createFromTime(19, 0);
+            // Tomar el valor actual de la cita o el de validación anterior
+            $currentTime = old('appointment_time', \Carbon\Carbon::parse($appointment->appointment_time)->format('H:i'));
+        @endphp
+
+        @while ($start <= $end)
+            @php
+                $val24 = $start->format('H:i');
+                $label12 = $start->format('h:i A');
+            @endphp
+            <option value="{{ $val24 }}" {{ $currentTime == $val24 ? 'selected' : '' }}>
+                {{ $label12 }}
+            </option>
+            @php $start->addMinutes(15); @endphp
+        @endwhile
+    </select>
+    @error('appointment_time') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
+</div>
 
                         <div>
                             <label for="duration_minutes" class="block text-sm font-medium text-gray-700">Duración (minutos) *</label>

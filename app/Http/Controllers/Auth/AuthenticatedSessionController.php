@@ -44,4 +44,12 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
+
+    protected function authenticated(Request $request, $user)
+    {
+        if ($user->role === 'Recepcion') {
+            return redirect()->route('appointments.index');
+        }
+        return redirect()->intended(RouteServiceProvider::HOME);
+    }
 }

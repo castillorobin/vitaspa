@@ -10,6 +10,8 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+/*
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
@@ -26,6 +28,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 });
+
+});
+
+*/
+
+
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Rutas exclusivas para Administrador
+    Route::middleware(['can:admin'])->group(function () {
+        get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+        resource('users', UserController::class);
+    });
+
+    // Rutas accesibles para Recepción y Administrador
+    resource('patients', PatientController::class);
+    resource('appointments', AppointmentController::class);
 });
 
 require __DIR__.'/auth.php';

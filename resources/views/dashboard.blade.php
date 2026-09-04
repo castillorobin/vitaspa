@@ -6,7 +6,7 @@
                     {{ __('Panel Principal — VitaSpa') }}
                 </h2>
                 <p class="text-sm text-gray-500 mt-1">
-                    Citas programadas para hoy: {{ \Carbon\Carbon::now()->translatedFormat('l, d \d\e F \d\e Y') }}
+                   Citas programadas para hoy: {{ \Carbon\Carbon::now()->locale('es')->translatedFormat('l, d \d\e F \d\e Y') }}
                 </p>
             </div>
             <a href="{{ route('appointments.create') }}" 

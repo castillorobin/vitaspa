@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
@@ -65,40 +66,47 @@ class ReportController extends Controller
         $fileName = 'Reporte_VitaSpa_' . $startDate . '_al_' . $endDate . '.xlsx';
         $tempPath = tempnam(sys_get_temp_dir(), 'vitaspa_') . '.xlsx';
 
-        // Instanciación correcta para OpenSpout v4
         $options = new Options();
         $writer = new Writer($options);
         $writer->openToFile($tempPath);
 
-        // --- ESTILOS ---
+        // --- ESTILOS COMPATIBLES CON OPENSPOUT V5 (with...) ---
+        // 1. Título principal
         $titleStyle = (new Style())
-            ->setFontBold()
-            ->setFontSize(15)
-            ->setFontColor(Color::rgb(6, 78, 59));
+            ->withFontBold()
+            ->withFontSize(15)
+            ->withFontColor(Color::rgb(6, 78, 59));
 
+        // 2. Subtítulo / Período
         $subTitleStyle = (new Style())
-            ->setFontItalic()
-            ->setFontSize(10)
-            ->setFontColor(Color::rgb(107, 114, 128));
+            ->withFontItalic()
+            ->withFontSize(10)
+            ->withFontColor(Color::rgb(107, 114, 128));
 
+        // 3. Encabezados de tabla
         $headerStyle = (new Style())
-            ->setFontBold()
-            ->setFontSize(11)
-            ->setFontColor(Color::WHITE)
-            ->setBackgroundColor(Color::rgb(5, 150, 105));
+            ->withFontBold()
+            ->withFontSize(11)
+            ->withFontColor(Color::WHITE)
+            ->withBackgroundColor(Color::rgb(5, 150, 105));
 
-        $bodyStyle = (new Style())
-            ->setFontSize(10);
+        // 4. Fila normal y Fila de Total
+        $bodyStyle = (new Style())->withFontSize(10);
+        $totalStyle = (new Style())->withFontBold()->withFontSize(11);
 
         // --- CONTENIDO ---
+        // Título solicitado
         $writer->addRow(Row::fromValues(['Reporte de citas de VitaSpa'], $titleStyle));
 
+        // Subtítulo con rango de fechas
         $writer->addRow(Row::fromValues([
             'Período: ' . \Carbon\Carbon::parse($startDate)->format('d/m/Y') . ' al ' . \Carbon\Carbon::parse($endDate)->format('d/m/Y') . ' | Generado: ' . now()->format('d/m/Y h:i A')
         ], $subTitleStyle));
 
+        // Espacio en blanco
         $writer->addRow(Row::fromValues(['']));
 
+        // Encabezados de columnas
         $headers = [
             'ID',
             'Fecha',
@@ -115,6 +123,7 @@ class ReportController extends Controller
         ];
         $writer->addRow(Row::fromValues($headers, $headerStyle));
 
+        // Filas de datos
         foreach ($appointments as $item) {
             $dataRow = [
                 $item->id,
@@ -133,12 +142,13 @@ class ReportController extends Controller
             $writer->addRow(Row::fromValues($dataRow, $bodyStyle));
         }
 
+        // Total general al final
         $totalIngresos = $appointments->where('status', 'Completada')->sum('price');
         $writer->addRow(Row::fromValues(['']));
         $writer->addRow(Row::fromValues([
             '', '', '', '', '', '', '', 'Total Recaudado (Completadas):', 
             number_format($totalIngresos, 2, '.', '')
-        ], (new Style())->setFontBold()->setFontSize(11)));
+        ], $totalStyle));
 
         $writer->close();
 

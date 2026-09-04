@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -11,25 +12,29 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
-        // 5 citas más próximas desde hoy
-        $upcomingAppointments = Appointment::with(['patient', 'attendedBy'])
-            ->whereDate('appointment_date', '>=', $today)
-            ->where('status', '!=', 'Cancelada')
-            ->orderBy('appointment_date', 'asc')
+        // 1. Citas del día actual ordenadas por hora de atención
+        $todayAppointments = Appointment::with(['patient', 'attendedBy'])
+            ->whereDate('appointment_date', $today)
             ->orderBy('appointment_time', 'asc')
-            ->take(5)
             ->get();
 
-        // Ingresos: total del mes y total de hoy (solo completadas o pagadas)
-        $incomeToday = Appointment::whereDate('appointment_date', $today)
+        // 2. Dinero recaudado hoy (únicamente citas con estado 'Completada')
+        $incomeToday = $todayAppointments
             ->where('status', 'Completada')
             ->sum('price');
 
-        $incomeMonth = Appointment::whereMonth('appointment_date', $today->month)
-            ->whereYear('appointment_date', $today->year)
-            ->where('status', 'Completada')
-            ->sum('price');
+        // 3. Métricas rápidas del día
+        $totalAppointmentsToday = $todayAppointments->count();
+        $completedCount = $todayAppointments->where('status', 'Completada')->count();
+        $pendingCount = $todayAppointments->where('status', 'Pendiente')->count();
 
-        return view('dashboard', compact('upcomingAppointments', 'incomeToday', 'incomeMonth'));
+        return view('dashboard', compact(
+            'todayAppointments',
+            'incomeToday',
+            'totalAppointmentsToday',
+            'completedCount',
+            'pendingCount',
+            'today'
+        ));
     }
 }

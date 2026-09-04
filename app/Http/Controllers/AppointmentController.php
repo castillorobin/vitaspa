@@ -44,7 +44,7 @@ class AppointmentController extends Controller
             'service'          => 'required|string|max:150',
             'status'           => 'required|in:Pendiente,Completada,Cancelada',
             'price'            => 'required|numeric|min:0',
-            'payment_method'   => 'required|in:Efectivo,Tarjeta,Transferencia',
+            'payment_method'   => 'required|in:Efectivo,Tarjeta,Transferencia,Paquete',
             'notes'            => 'nullable|string|max:1000',
         ]);
 
@@ -73,7 +73,7 @@ class AppointmentController extends Controller
             'service'          => 'required|string|max:150',
             'status'           => 'required|in:Pendiente,Completada,Cancelada',
             'price'            => 'required|numeric|min:0',
-            'payment_method'   => 'required|in:Efectivo,Tarjeta,Transferencia',
+            'payment_method'   => 'required|in:Efectivo,Tarjeta,Transferencia,Paquete',
             'notes'            => 'nullable|string|max:1000',
         ]);
 

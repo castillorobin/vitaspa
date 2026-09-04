@@ -5,10 +5,10 @@ use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use OpenSpout\Writer\XLSX\Writer;
+use OpenSpout\Writer\XLSX\Options;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Common\Entity\Style\Color;
-use OpenSpout\Common\Entity\Style\CellAlignment;
 
 class ReportController extends Controller
 {
@@ -65,47 +65,40 @@ class ReportController extends Controller
         $fileName = 'Reporte_VitaSpa_' . $startDate . '_al_' . $endDate . '.xlsx';
         $tempPath = tempnam(sys_get_temp_dir(), 'vitaspa_') . '.xlsx';
 
-        // Inicializar el escritor de XLSX
-        $writer = new Writer();
+        // Instanciación correcta para OpenSpout v4
+        $options = new Options();
+        $writer = new Writer($options);
         $writer->openToFile($tempPath);
 
         // --- ESTILOS ---
-        // 1. Título principal
         $titleStyle = (new Style())
             ->setFontBold()
             ->setFontSize(15)
-            ->setFontColor(Color::rgb(6, 78, 59)); // Verde esmeralda oscuro
+            ->setFontColor(Color::rgb(6, 78, 59));
 
-        // 2. Subtítulo / Rango de fechas
         $subTitleStyle = (new Style())
             ->setFontItalic()
             ->setFontSize(10)
             ->setFontColor(Color::rgb(107, 114, 128));
 
-        // 3. Encabezados de tabla
         $headerStyle = (new Style())
             ->setFontBold()
             ->setFontSize(11)
             ->setFontColor(Color::WHITE)
-            ->setBackgroundColor(Color::rgb(5, 150, 105)); // Verde esmeralda VitaSpa
+            ->setBackgroundColor(Color::rgb(5, 150, 105));
 
-        // 4. Filas normales
         $bodyStyle = (new Style())
             ->setFontSize(10);
 
         // --- CONTENIDO ---
-        // Fila 1: Encabezado principal solicitado
         $writer->addRow(Row::fromValues(['Reporte de citas de VitaSpa'], $titleStyle));
 
-        // Fila 2: Subtítulo con rango y fecha de emisión
         $writer->addRow(Row::fromValues([
             'Período: ' . \Carbon\Carbon::parse($startDate)->format('d/m/Y') . ' al ' . \Carbon\Carbon::parse($endDate)->format('d/m/Y') . ' | Generado: ' . now()->format('d/m/Y h:i A')
         ], $subTitleStyle));
 
-        // Fila 3: Espacio en blanco
         $writer->addRow(Row::fromValues(['']));
 
-        // Fila 4: Columnas
         $headers = [
             'ID',
             'Fecha',
@@ -122,7 +115,6 @@ class ReportController extends Controller
         ];
         $writer->addRow(Row::fromValues($headers, $headerStyle));
 
-        // Filas de datos
         foreach ($appointments as $item) {
             $dataRow = [
                 $item->id,
@@ -141,7 +133,6 @@ class ReportController extends Controller
             $writer->addRow(Row::fromValues($dataRow, $bodyStyle));
         }
 
-        // Fila de resumen al final
         $totalIngresos = $appointments->where('status', 'Completada')->sum('price');
         $writer->addRow(Row::fromValues(['']));
         $writer->addRow(Row::fromValues([
@@ -151,7 +142,6 @@ class ReportController extends Controller
 
         $writer->close();
 
-        // Enviar descarga y eliminar el archivo temporal
         return response()->download($tempPath, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ])->deleteFileAfterSend(true);

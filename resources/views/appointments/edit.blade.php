@@ -67,10 +67,10 @@
                         <div>
                             <label for="service" class="block text-sm font-medium text-gray-700">Servicio *</label>
                             <select name="service" id="service" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                                @foreach(['Combinado', 'Craneo', 'Pies', 'Espalda'] as $srv)
-                                    <option value="{{ $srv }}" {{ old('service', $appointment->service) == $srv ? 'selected' : '' }}>{{ $srv }}</option>
-                                @endforeach
-                            </select>
+    @foreach(['Masaje Terapeutico', 'Masaje relajante', 'Masaje combinado', 'Masaje dreno linfatico', 'Masaje de descarga o deportivo', 'Masaje craneofacial', 'Masaje de reflexologia podal', 'Masaje piernas cansadas', 'Masaje terapeutico cuppin', 'Masaje relajante con piedras calientes', 'Masaje terapeutico con termoterapia', 'Masaje reductivo', 'Maderoterapia con drenolinfático', 'Facial Hidratante', 'Limpieza facial', 'Exfoliacion corporal', 'Depilalcion laser', 'Paquete 1 individual', 'Paquete 2 individual', 'Paquete 1 pareja', 'Paquete 2 pareja'] as $srv)
+        <option value="{{ $srv }}" {{ old('service', $appointment->service) == $srv ? 'selected' : '' }}>{{ $srv }}</option>
+    @endforeach
+</select>
                             @error('service') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
                         </div>
 

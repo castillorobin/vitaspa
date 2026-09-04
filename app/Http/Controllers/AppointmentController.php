@@ -10,20 +10,20 @@ use Illuminate\Http\Request;
 class AppointmentController extends Controller
 {
     public function index(Request $request)
-    {
-        $status = $request->input('status');
-        $date = $request->input('date');
+{
+    $status = $request->input('status');
+    $date = $request->input('date');
 
-        $appointments = Appointment::with(['patient', 'attendedBy'])
-            ->when($status, fn($q) => $q->where('status', $status))
-            ->when($date, fn($q) => $q->whereDate('appointment_date', $date))
-            ->orderBy('appointment_date', 'desc')
-            ->orderBy('appointment_time', 'desc')
-            ->paginate(15)
-            ->withQueryString();
+    $appointments = Appointment::with(['patient', 'attendedBy'])
+        ->when($status, fn($q) => $q->where('status', $status))
+        ->when($date, fn($q) => $q->whereDate('appointment_date', $date))
+        ->orderBy('appointment_date', 'desc') // Agrupa por día
+        ->orderBy('appointment_time', 'asc')  // Ordena de más temprano a más tarde
+        ->paginate(15)
+        ->withQueryString();
 
-        return view('appointments.index', compact('appointments', 'status', 'date'));
-    }
+    return view('appointments.index', compact('appointments', 'status', 'date'));
+}
 
     public function create()
     {

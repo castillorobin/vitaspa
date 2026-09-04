@@ -62,11 +62,29 @@
                         </div>
 
                         <div>
-                            <label for="appointment_time" class="block text-sm font-medium text-gray-700">Hora *</label>
-                            <input type="time" name="appointment_time" id="appointment_time" value="{{ old('appointment_time', '10:00') }}" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                            @error('appointment_time') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
-                        </div>
+    <label for="appointment_time" class="block text-sm font-medium text-gray-700">Hora *</label>
+    <select name="appointment_time" id="appointment_time" required
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+        @php
+            // Rango comercial típico de VitaSpa: 08:00 AM a 07:00 PM cada 30 minutos
+            $start = \Carbon\Carbon::createFromTime(8, 0);
+            $end = \Carbon\Carbon::createFromTime(19, 0);
+            $selectedTime = old('appointment_time', '10:00');
+        @endphp
+
+        @while ($start <= $end)
+            @php
+                $val24 = $start->format('H:i');     // Lo que se guarda en BD: 14:30
+                $label12 = $start->format('h:i A');  // Lo que ve el usuario: 02:30 PM
+            @endphp
+            <option value="{{ $val24 }}" {{ $selectedTime == $val24 ? 'selected' : '' }}>
+                {{ $label12 }}
+            </option>
+            @php $start->addMinutes(30); @endphp
+        @endwhile
+    </select>
+    @error('appointment_time') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
+</div>
 
                         <div>
                             <label for="duration_minutes" class="block text-sm font-medium text-gray-700">Duración (minutos) *</label>

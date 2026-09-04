@@ -70,7 +70,7 @@ class ReportController extends Controller
         $writer = new Writer($options);
         $writer->openToFile($tempPath);
 
-        // --- ESTILOS OPENSPOUT V4 ---
+        // --- ESTILOS ---
         $titleStyle = (new Style())
             ->withFontBold(true)
             ->withFontSize(15)
@@ -90,16 +90,16 @@ class ReportController extends Controller
         $bodyStyle = (new Style())->withFontSize(10);
         $totalStyle = (new Style())->withFontBold(true)->withFontSize(11);
 
-        // --- CONTENIDO ---
+        // --- FILAS: Row::fromValues($valores, 0.0, $estilo) ---
         // 1. Título principal
-        $writer->addRow(Row::fromValues(['Reporte de citas de VitaSpa'], $titleStyle));
+        $writer->addRow(Row::fromValues(['Reporte de citas de VitaSpa'], 0.0, $titleStyle));
 
-        // 2. Subtítulo con rango de fechas
+        // 2. Subtítulo con período
         $writer->addRow(Row::fromValues([
             'Período: ' . \Carbon\Carbon::parse($startDate)->format('d/m/Y') . ' al ' . \Carbon\Carbon::parse($endDate)->format('d/m/Y') . ' | Generado: ' . now()->format('d/m/Y h:i A')
-        ], $subTitleStyle));
+        ], 0.0, $subTitleStyle));
 
-        // 3. Espacio en blanco
+        // 3. Fila vacía de separación
         $writer->addRow(Row::fromValues(['']));
 
         // 4. Encabezados de columnas
@@ -117,9 +117,9 @@ class ReportController extends Controller
             'Estado',
             'Observaciones'
         ];
-        $writer->addRow(Row::fromValues($headers, $headerStyle));
+        $writer->addRow(Row::fromValues($headers, 0.0, $headerStyle));
 
-        // 5. Filas de datos
+        // 5. Filas de citas
         foreach ($appointments as $item) {
             $dataRow = [
                 $item->id,
@@ -135,16 +135,16 @@ class ReportController extends Controller
                 $item->status,
                 $item->notes ?? '',
             ];
-            $writer->addRow(Row::fromValues($dataRow, $bodyStyle));
+            $writer->addRow(Row::fromValues($dataRow, 0.0, $bodyStyle));
         }
 
-        // 6. Resumen final de ingresos
+        // 6. Resumen de total recaudado
         $totalIngresos = $appointments->where('status', 'Completada')->sum('price');
         $writer->addRow(Row::fromValues(['']));
         $writer->addRow(Row::fromValues([
             '', '', '', '', '', '', '', 'Total Recaudado (Completadas):', 
             number_format($totalIngresos, 2, '.', '')
-        ], $totalStyle));
+        ], 0.0, $totalStyle));
 
         $writer->close();
 

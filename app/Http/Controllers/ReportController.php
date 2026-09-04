@@ -70,29 +70,29 @@ class ReportController extends Controller
         $writer = new Writer($options);
         $writer->openToFile($tempPath);
 
-        // --- ESTILOS COMPATIBLES CON OPENSPOUT V5 (with...) ---
+        // --- ESTILOS OPENSPOUT V5 ---
         // 1. Título principal
         $titleStyle = (new Style())
-            ->withFontBold()
+            ->withFontBold(true)
             ->withFontSize(15)
             ->withFontColor(Color::rgb(6, 78, 59));
 
         // 2. Subtítulo / Período
         $subTitleStyle = (new Style())
-            ->withFontItalic()
+            ->withFontItalic(true)
             ->withFontSize(10)
             ->withFontColor(Color::rgb(107, 114, 128));
 
         // 3. Encabezados de tabla
         $headerStyle = (new Style())
-            ->withFontBold()
+            ->withFontBold(true)
             ->withFontSize(11)
             ->withFontColor(Color::WHITE)
             ->withBackgroundColor(Color::rgb(5, 150, 105));
 
-        // 4. Fila normal y Fila de Total
+        // 4. Filas y total
         $bodyStyle = (new Style())->withFontSize(10);
-        $totalStyle = (new Style())->withFontBold()->withFontSize(11);
+        $totalStyle = (new Style())->withFontBold(true)->withFontSize(11);
 
         // --- CONTENIDO ---
         // Título solicitado

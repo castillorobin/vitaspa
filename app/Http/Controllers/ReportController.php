@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use OpenSpout\Writer\XLSX\Writer;
 use OpenSpout\Writer\XLSX\Options;
+use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Common\Entity\Style\Color;
@@ -88,21 +89,31 @@ class ReportController extends Controller
             ->withBackgroundColor(Color::rgb(5, 150, 105));
 
         $bodyStyle = (new Style())->withFontSize(10);
-        $totalStyle = (new Style())->withFontBold(true)->withFontSize(11);
 
-        // --- FILAS: Row::fromValues($valores, 0.0, $estilo) ---
-        // 1. Título principal
+        // Estilo de Contabilidad en Dólares ($#,##0.00)
+        $currencyStyle = (new Style())
+            ->withFontSize(10)
+            ->withFormat('"$"\#,##0.00');
+
+        // Estilo de Contabilidad para Totales (Negrita + Dólar)
+        $totalCurrencyStyle = (new Style())
+            ->withFontBold(true)
+            ->withFontSize(11)
+            ->withFormat('"$"\#,##0.00');
+
+        $totalLabelStyle = (new Style())
+            ->withFontBold(true)
+            ->withFontSize(11);
+
+        // --- 1. ENCABEZADO Y FILAS PREVIAS ---
         $writer->addRow(Row::fromValues(['Reporte de citas de VitaSpa'], 0.0, $titleStyle));
 
-        // 2. Subtítulo con período
         $writer->addRow(Row::fromValues([
             'Período: ' . \Carbon\Carbon::parse($startDate)->format('d/m/Y') . ' al ' . \Carbon\Carbon::parse($endDate)->format('d/m/Y') . ' | Generado: ' . now()->format('d/m/Y h:i A')
         ], 0.0, $subTitleStyle));
 
-        // 3. Fila vacía de separación
         $writer->addRow(Row::fromValues(['']));
 
-        // 4. Encabezados de columnas
         $headers = [
             'ID',
             'Fecha',
@@ -112,39 +123,59 @@ class ReportController extends Controller
             'Servicio',
             'Duración (min)',
             'Atendido Por',
-            'Precio ($)',
+            'Precio',
             'Método de Pago',
             'Estado',
             'Observaciones'
         ];
         $writer->addRow(Row::fromValues($headers, 0.0, $headerStyle));
 
-        // 5. Filas de citas
+        // --- 2. FILAS DE CITAS CON FORMATO CONTABLE ---
         foreach ($appointments as $item) {
-            $dataRow = [
-                $item->id,
-                \Carbon\Carbon::parse($item->appointment_date)->format('d/m/Y'),
-                \Carbon\Carbon::parse($item->appointment_time)->format('h:i A'),
-                $item->patient->name ?? 'N/A',
-                $item->patient->phone ?? 'Sin teléfono',
-                $item->service,
-                $item->duration_minutes,
-                $item->attendedBy->name ?? 'N/A',
-                number_format($item->price, 2, '.', ''),
-                $item->payment_method,
-                $item->status,
-                $item->notes ?? '',
+            $rowCells = [
+                Cell::fromValue($item->id, $bodyStyle),
+                Cell::fromValue(\Carbon\Carbon::parse($item->appointment_date)->format('d/m/Y'), $bodyStyle),
+                Cell::fromValue(\Carbon\Carbon::parse($item->appointment_time)->format('h:i A'), $bodyStyle),
+                Cell::fromValue($item->patient->name ?? 'N/A', $bodyStyle),
+                Cell::fromValue($item->patient->phone ?? 'Sin teléfono', $bodyStyle),
+                Cell::fromValue($item->service, $bodyStyle),
+                Cell::fromValue($item->duration_minutes, $bodyStyle),
+                Cell::fromValue($item->attendedBy->name ?? 'N/A', $bodyStyle),
+                // Precio como float con formato de contabilidad en dólares
+                Cell::fromValue((float) $item->price, $currencyStyle),
+                Cell::fromValue($item->payment_method, $bodyStyle),
+                Cell::fromValue($item->status, $bodyStyle),
+                Cell::fromValue($item->notes ?? '', $bodyStyle),
             ];
-            $writer->addRow(Row::fromValues($dataRow, 0.0, $bodyStyle));
+
+            $writer->addRow(new Row($rowCells));
         }
 
-        // 6. Resumen de total recaudado
-        $totalIngresos = $appointments->where('status', 'Completada')->sum('price');
+        // --- 3. FILA DE TOTALES ---
+        // Suma de citas completadas excluyendo "Paquete"
+        $totalIngresos = $appointments
+            ->where('status', 'Completada')
+            ->where('payment_method', '!=', 'Paquete')
+            ->sum('price');
+
         $writer->addRow(Row::fromValues(['']));
-        $writer->addRow(Row::fromValues([
-            '', '', '', '', '', '', '', 'Total Recaudado (Completadas):', 
-            number_format($totalIngresos, 2, '.', '')
-        ], 0.0, $totalStyle));
+
+        $totalRowCells = [
+            Cell::fromValue('', $bodyStyle),
+            Cell::fromValue('', $bodyStyle),
+            Cell::fromValue('', $bodyStyle),
+            Cell::fromValue('', $bodyStyle),
+            Cell::fromValue('', $bodyStyle),
+            Cell::fromValue('', $bodyStyle),
+            Cell::fromValue('', $bodyStyle),
+            Cell::fromValue('Total Recaudado (Completadas):', $totalLabelStyle),
+            Cell::fromValue((float) $totalIngresos, $totalCurrencyStyle),
+            Cell::fromValue('', $bodyStyle),
+            Cell::fromValue('', $bodyStyle),
+            Cell::fromValue('', $bodyStyle),
+        ];
+
+        $writer->addRow(new Row($totalRowCells));
 
         $writer->close();
 

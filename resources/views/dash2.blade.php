@@ -71,9 +71,7 @@
                         <span class="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
                         Agenda de Citas para Hoy
                     </h3>
-                    <a href="{{ route('appointments.index') }}" class="text-xs font-semibold text-emerald-600 hover:text-emerald-800 transition">
-                        Ver todas las fechas &rarr;
-                    </a>
+                    
                 </div>
 
                 <div class="overflow-x-auto">

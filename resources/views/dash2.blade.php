@@ -85,8 +85,7 @@
                                 <th class="px-6 py-3">Servicio</th>
                                 <th class="px-6 py-3">Atiende</th>
                                 <th class="px-6 py-3">Precio</th>
-                                <th class="px-6 py-3">Pago</th>
-                                <th class="px-6 py-3">Estado</th>
+                                
                                 
                             </tr>
                         </thead>
@@ -112,18 +111,7 @@
                                     <td class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">
                                         ${{ number_format($appointment->price, 2) }}
                                     </td>
-                                    <td class="px-6 py-4 text-gray-600 whitespace-nowrap text-xs">
-                                        {{ $appointment->payment_method }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($appointment->status === 'Completada')
-                                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">Completada</span>
-                                        @elseif($appointment->status === 'Cancelada')
-                                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-rose-100 text-rose-800">Cancelada</span>
-                                        @else
-                                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">Pendiente</span>
-                                        @endif
-                                    </td>
+                                   
                                     
                                 </tr>
                             @empty

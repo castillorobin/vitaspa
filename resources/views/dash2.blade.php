@@ -24,21 +24,7 @@
 
             <!-- TARJETAS DE MÉTRICAS SUPERIORES -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <!-- Caja: Ingresos del Día -->
-                <div class="bg-white overflow-hidden shadow-sm rounded-xl p-6 border-l-4 border-emerald-500 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Recaudado Hoy (Completadas)</p>
-                        <h3 class="text-3xl font-extrabold text-emerald-700 mt-1">
-                            ${{ number_format($incomeToday, 2) }}
-                        </h3>
-                        <span class="text-xs text-gray-400 mt-1 block">Suma de citas completadas</span>
-                    </div>
-                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-full">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                </div>
+               
 
                 <!-- Caja: Citas Programadas Hoy -->
                 <div class="bg-white overflow-hidden shadow-sm rounded-xl p-6 border-l-4 border-blue-500 flex items-center justify-between">
@@ -101,7 +87,7 @@
                                 <th class="px-6 py-3">Precio</th>
                                 <th class="px-6 py-3">Pago</th>
                                 <th class="px-6 py-3">Estado</th>
-                                <th class="px-6 py-3 text-right">Acciones</th>
+                                
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
@@ -138,29 +124,7 @@
                                             <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">Pendiente</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                                        @if(!empty($appointment->patient->phone))
-                                            @php
-                                                $cleanPhone = preg_replace('/[^0-9]/', '', $appointment->patient->phone);
-                                                if (strlen($cleanPhone) === 8) {
-                                                    $cleanPhone = '503' . $cleanPhone;
-                                                }
-                                                $horaCita = \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A');
-                                                $waMessage = rawurlencode("Hola {$appointment->patient->name}, le saludamos de VitaSpa para recordarle su cita de {$appointment->service} de hoy a las {$horaCita}. ¡Le esperamos!");
-                                            @endphp
-                                            <a href="https://wa.me/{{ $cleanPhone }}?text={{ $waMessage }}" 
-                                               target="_blank" 
-                                               rel="noopener noreferrer"
-                                               title="Enviar recordatorio por WhatsApp"
-                                               class="inline-flex items-center text-emerald-600 hover:text-emerald-800 transition">
-                                                <svg class="w-5 h-5 inline-block" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M12.031 2a9.97 9.97 0 0 0-8.625 15.012L2 22l5.125-1.344A9.97 9.97 0 0 0 12.03 22c5.519 0 10-4.481 10-10s-4.481-10-10-9.969zm0 18.234c-1.562 0-3.094-.406-4.437-1.188l-.313-.188-3.281.859.875-3.188-.203-.328a8.21 8.21 0 0 1-1.281-4.406c0-4.547 3.703-8.25 8.25-8.25 4.547 0 8.25 3.703 8.25 8.25s-3.703 8.25-8.25 8.25zm4.531-6.188c-.25-.125-1.469-.719-1.703-.797-.219-.078-.391-.125-.562.125-.172.25-.656.797-.797.969-.156.172-.313.188-.563.063-.25-.125-1.062-.391-2.031-1.25a7.587 7.587 0 0 1-1.391-1.734c-.156-.25-.016-.391.109-.516.109-.109.25-.281.375-.422.125-.141.172-.25.25-.422.078-.172.031-.328-.016-.453-.063-.125-.563-1.359-.766-1.859-.203-.5-.406-.438-.563-.438h-.484c-.172 0-.453.063-.688.328-.25.25-.938.922-.938 2.25s.953 2.609 1.094 2.797c.141.188 1.875 2.875 4.547 4.031.641.281 1.141.453 1.531.578.641.203 1.234.172 1.703.109.516-.078 1.594-.656 1.813-1.281.234-.625.234-1.172.156-1.281-.063-.125-.234-.188-.484-.313z"/>
-                                                </svg>
-                                            </a>
-                                        @endif
-
-                                        <a href="{{ route('appointments.edit', $appointment) }}" class="text-blue-600 hover:text-blue-900 font-medium">Editar</a>
-                                    </td>
+                                    
                                 </tr>
                             @empty
                                 <tr>

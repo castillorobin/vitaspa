@@ -83,6 +83,7 @@
                                 <th class="px-6 py-3">Servicio</th>
                                 <th class="px-6 py-3">Atiende</th>
                                 <th class="px-6 py-3">Precio</th>
+                                <th class="px-6 py-3">Editar</th>
                                 
                                 
                             </tr>
@@ -108,6 +109,11 @@
                                     </td>
                                     <td class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">
                                         ${{ number_format($appointment->price, 2) }}
+                                    </td>
+                                    <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
+                                        
+
+                                        <a href="{{ route('appointments.edit', $appointment) }}" class="text-blue-600 hover:text-blue-900 font-medium">Editar</a>
                                     </td>
                                    
                                     

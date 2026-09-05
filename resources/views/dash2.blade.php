@@ -98,7 +98,7 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="font-semibold text-gray-900">{{ $appointment->patient->name }}</div>
-                                        <div class="text-xs text-gray-500">{{ $appointment->patient->phone ?? 'Sin teléfono' }}</div>
+                                        
                                     </td>
                                     <td class="px-6 py-4">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">

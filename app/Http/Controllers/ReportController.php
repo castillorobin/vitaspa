@@ -91,6 +91,7 @@ class ReportController extends Controller
         $bodyStyle = (new Style())->withFontSize(10);
 
         // Estilo de Contabilidad en Dólares ($#,##0.00)
+        /*
         $currencyStyle = (new Style())
             ->withFontSize(10)
             ->withFormat('"$"\#,##0.00');
@@ -101,7 +102,21 @@ class ReportController extends Controller
             ->withFontSize(11)
             ->withFormat('"$"\#,##0.00');
 
+
         $totalLabelStyle = (new Style())
+            ->withFontBold(true)
+            ->withFontSize(11);
+            */
+            $currencyStyle = (new Style())
+            ->withFontSize(10)
+            ->withFormat('$#,##0.00');
+
+        $totalCurrencyStyle = (new Style())
+            ->withFontBold(true)
+            ->withFontSize(11)
+            ->withFormat('$#,##0.00');
+
+            $totalLabelStyle = (new Style())
             ->withFontBold(true)
             ->withFontSize(11);
 

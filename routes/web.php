@@ -30,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rutas accesibles para Recepción y Administrador
     Route::resource('patients', PatientController::class);
     Route::resource('appointments', AppointmentController::class);
+
+    Route::get('/dash2', [DashboardController::class, 'recepcion'])->name('recepcion');
 });
 
 require __DIR__.'/auth.php';

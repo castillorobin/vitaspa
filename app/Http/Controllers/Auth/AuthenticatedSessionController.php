@@ -30,7 +30,7 @@ class AuthenticatedSessionController extends Controller
 
         // Redirección condicional según el rol
         if ($request->user()->role === 'Recepcion') {
-            return redirect()->intended(route('appointments.index', absolute: false));
+            return redirect()->intended(route('recepcion', absolute: false));
         }
 
         return redirect()->intended(route('dashboard', absolute: false));
@@ -53,7 +53,7 @@ class AuthenticatedSessionController extends Controller
     protected function authenticated(Request $request, $user)
     {
         if ($user->role === 'Recepcion') {
-            return redirect()->route('appointments.index');
+            return redirect()->route('recepcion');
         }
         return redirect()->intended(RouteServiceProvider::HOME);
     }

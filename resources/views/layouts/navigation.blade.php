@@ -22,14 +22,22 @@
                         <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                             {{ __('Usuarios') }}
                         </x-nav-link>
-                    @endif
 
-                    <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.*')">
+                        <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.*')">
                         {{ __('Pacientes') }}
                     </x-nav-link>
                     <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.*')">
                         {{ __('Citas') }}
                     </x-nav-link>
+
+                    @endif
+                    @if(auth()->user()->role === 'Recepcion')
+                        <x-nav-link :href="route('recepcion')" :active="request()->routeIs('recepcion')">
+                            {{ __('Recepción') }}
+                        </x-nav-link>
+                    @endif
+
+                    
                 </div>
             </div>
 
@@ -92,14 +100,22 @@
                 <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                     {{ __('Usuarios') }}
                 </x-responsive-nav-link>
-            @endif
-            
             <x-responsive-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.*')">
                 {{ __('Pacientes') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.*')">
                 {{ __('Citas') }}
             </x-responsive-nav-link>
+            
+            
+                @endif
+@if(auth()->user()->role === 'Recepcion')
+                <x-responsive-nav-link :href="route('recepcion')" :active="request()->routeIs('recepcion')">
+                    {{ __('Recepción') }}
+                </x-responsive-nav-link>
+                @endif
+            
+            
             
         </div>
 

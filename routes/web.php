@@ -32,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('appointments', AppointmentController::class);
 
     Route::get('/dash2', [DashboardController::class, 'recepcion'])->name('recepcion');
+    Route::get('/citasre', [AppointmentController::class, 'recepcioncitas'])->name('recepcioncitas');
 });
 
 require __DIR__.'/auth.php';

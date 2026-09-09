@@ -35,6 +35,9 @@
                         <x-nav-link :href="route('recepcion')" :active="request()->routeIs('recepcion')">
                             {{ __('Recepción') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('recepcioncitas')" :active="request()->routeIs('recepcioncitas')">
+                            {{ __('Citas') }}
+                        </x-nav-link>
                     @endif
 
                     

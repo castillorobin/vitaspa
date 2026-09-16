@@ -41,12 +41,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Selector de Paciente con Botón de Creación Rápida -->
                         <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <label for="patient_id" class="block text-sm font-medium text-gray-700">Paciente *</label>
-                                <button type="button" onclick="openPatientModal()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-800 transition">
-                                    + Registrar
-                                </button>
-                            </div>
+                         
                             <div class="flex gap-2">
                                 <select name="patient_id" id="patient_id" required placeholder="Buscar por nombre o teléfono...">
                                     <option value="">Seleccione o busque un paciente...</option>

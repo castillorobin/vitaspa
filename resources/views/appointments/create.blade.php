@@ -10,24 +10,37 @@
 
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <style>
-    /* Ajustes estéticos para integrarlo con Tailwind y VitaSpa */
+    /* Control del selector */
     .ts-control {
         border-color: #d1d5db !important;
         border-radius: 0.375rem !important;
         padding: 0.5rem 0.75rem !important;
         font-size: 0.875rem !important;
+        background-color: #ffffff !important;
         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
     }
     .ts-control:focus, .ts-wrapper.focus .ts-control {
         border-color: #10b981 !important;
         box-shadow: 0 0 0 1px #10b981 !important;
     }
+
+    /* Menú desplegable flotante con fondo blanco opaco y elevación */
     .ts-dropdown {
+        background-color: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
         border-radius: 0.375rem !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
         font-size: 0.875rem !important;
-        z-index: 50 !important;
+        z-index: 9999 !important;
     }
-    .ts-dropdown .active {
+
+    /* Opciones dentro del dropdown */
+    .ts-dropdown .option {
+        padding: 0.5rem 0.75rem !important;
+        background-color: #ffffff;
+        color: #1f2937;
+    }
+    .ts-dropdown .active, .ts-dropdown .option:hover {
         background-color: #ecfdf5 !important;
         color: #065f46 !important;
     }
@@ -41,40 +54,43 @@
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Selector de Paciente con Botón de Creación Rápida -->
-                        <div>
-                         
-                            <div class="flex gap-2">
-                                <select name="patient_id" id="patient_id" required placeholder="Buscar por nombre o teléfono...">
-                                    <option value="">Seleccione o busque un paciente...</option>
-                                    @foreach($patients as $patient)
-                                        <option value="{{ $patient->id }}" {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
-                                            {{ $patient->name }} - {{ $patient->phone ?? 'Sin teléfono' }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <button type="button" onclick="openPatientModal()" title="Agregar nuevo paciente" 
-                                        class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md flex items-center justify-center transition">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            @error('patient_id') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
-                        </div>
+    <!-- Selector de Paciente (con z-30 y relative) -->
+    <div class="relative z-30">
+        <label for="patient_id" class="block text-sm font-medium text-gray-700 mb-1">Paciente *</label>
+        <div class="flex gap-2">
+            <div class="flex-1">
+                <select name="patient_id" id="patient_id" required placeholder="Buscar por nombre o teléfono...">
+                    <option value="">Seleccione o busque un paciente...</option>
+                    @foreach($patients as $patient)
+                        <option value="{{ $patient->id }}" {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
+                            {{ $patient->name }} - {{ $patient->phone ?? 'Sin teléfono' }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="button" onclick="openPatientModal()" title="Agregar nuevo paciente" 
+                    class="h-[38px] px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md flex items-center justify-center transition shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+            </button>
+        </div>
+        @error('patient_id') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
+    </div>
 
-                        <div>
-                            <label for="user_id" class="block text-sm font-medium text-gray-700 mb-1">Atendido por *</label>
-                            <select name="user_id" id="user_id" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ old('user_id', auth()->id()) == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('user_id') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
+    <!-- Atendido por -->
+    <div class="relative z-10">
+        <label for="user_id" class="block text-sm font-medium text-gray-700 mb-1">Atendido por *</label>
+        <select name="user_id" id="user_id" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+            @foreach($users as $user)
+                <option value="{{ $user->id }}" {{ old('user_id', auth()->id()) == $user->id ? 'selected' : '' }}>
+                    {{ $user->name }}
+                </option>
+            @endforeach
+        </select>
+        @error('user_id') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
+    </div>
+</div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
@@ -266,16 +282,16 @@
             })
             .then(data => {
                 const patient = data.patient;
+                const label = `${patient.name} - ${patient.phone || 'Sin teléfono'}`;
 
-                // Crear nueva opción en el select
-                const select = document.getElementById('patient_id');
-                const option = document.createElement('option');
-                option.value = patient.id;
-                option.text = `${patient.name} (${patient.phone || 'Sin teléfono'})`;
-                option.selected = true;
-
-                // Agregar y seleccionar
-                select.appendChild(option);
+                // Registrar la opción directamente en Tom Select y seleccionarla
+                if (patientTomSelect) {
+                    patientTomSelect.addOption({
+                        value: patient.id,
+                        text: label
+                    });
+                    patientTomSelect.setValue(patient.id);
+                }
 
                 // Cerrar modal
                 closePatientModal();
@@ -295,8 +311,10 @@
     <!-- Tom Select JS -->
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
+    let patientTomSelect = null;
+
     document.addEventListener('DOMContentLoaded', function () {
-        new TomSelect('#patient_id', {
+        patientTomSelect = new TomSelect('#patient_id', {
             create: false,
             maxItems: 1,
             placeholder: 'Escribe el nombre o teléfono del paciente...',

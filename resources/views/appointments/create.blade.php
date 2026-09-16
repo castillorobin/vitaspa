@@ -5,7 +5,10 @@
         </h2>
 
         <!-- Tom Select CSS -->
-<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+
+    </x-slot>
+
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <style>
     /* Ajustes estéticos para integrarlo con Tailwind y VitaSpa */
     .ts-control {
@@ -29,7 +32,6 @@
         color: #065f46 !important;
     }
 </style>
-    </x-slot>
 
     <div class="py-8">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">

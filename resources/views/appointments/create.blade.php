@@ -3,6 +3,32 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Agendar Nueva Cita') }}
         </h2>
+
+        <!-- Tom Select CSS -->
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<style>
+    /* Ajustes estéticos para integrarlo con Tailwind y VitaSpa */
+    .ts-control {
+        border-color: #d1d5db !important;
+        border-radius: 0.375rem !important;
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+    }
+    .ts-control:focus, .ts-wrapper.focus .ts-control {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 0 1px #10b981 !important;
+    }
+    .ts-dropdown {
+        border-radius: 0.375rem !important;
+        font-size: 0.875rem !important;
+        z-index: 50 !important;
+    }
+    .ts-dropdown .active {
+        background-color: #ecfdf5 !important;
+        color: #065f46 !important;
+    }
+</style>
     </x-slot>
 
     <div class="py-8">
@@ -22,11 +48,11 @@
                                 </button>
                             </div>
                             <div class="flex gap-2">
-                                <select name="patient_id" id="patient_id" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                                    <option value="">Selecciona un paciente</option>
+                                <select name="patient_id" id="patient_id" required placeholder="Buscar por nombre o teléfono...">
+                                    <option value="">Seleccione o busque un paciente...</option>
                                     @foreach($patients as $patient)
                                         <option value="{{ $patient->id }}" {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
-                                            {{ $patient->name }} ({{ $patient->phone ?? 'Sin teléfono' }})
+                                            {{ $patient->name }} - {{ $patient->phone ?? 'Sin teléfono' }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -268,4 +294,21 @@
             });
         });
     </script>
+
+    <!-- Tom Select JS -->
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        new TomSelect('#patient_id', {
+            create: false,
+            maxItems: 1,
+            placeholder: 'Escribe el nombre o teléfono del paciente...',
+            allowEmptyOption: true,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            }
+        });
+    });
+</script>
 </x-app-layout>

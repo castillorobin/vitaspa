@@ -91,7 +91,7 @@ public function recepcioncitas(Request $request)
         ]);
 
         Appointment::create($validated);
-
+ 
         return redirect()->route('appointments.index')
             ->with('success', 'Cita agendada exitosamente.');
     }

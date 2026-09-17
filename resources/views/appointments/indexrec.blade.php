@@ -105,11 +105,11 @@
                                     <td class="px-6 py-4 text-gray-600 whitespace-nowrap">{{ $appointment->payment_method }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($appointment->status === 'Completada')
-                                            <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-800 font-medium">Completada</span>
+                                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">Completada</span>
                                         @elseif($appointment->status === 'Cancelada')
-                                            <span class="px-2 py-1 text-xs rounded bg-rose-100 text-rose-800 font-medium">Cancelada</span>
+                                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-rose-100 text-rose-800">Cancelada</span>
                                         @else
-                                            <span class="px-2 py-1 text-xs rounded bg-amber-100 text-amber-800 font-medium">Pendiente</span>
+                                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">Pendiente</span>
                                         @endif
                                     </td>
                                    <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">

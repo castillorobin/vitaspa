@@ -171,6 +171,7 @@
                                 <option value="Tarjeta" {{ old('payment_method') == 'Tarjeta' ? 'selected' : '' }}>Tarjeta</option>
                                 <option value="Transferencia" {{ old('payment_method') == 'Transferencia' ? 'selected' : '' }}>Transferencia</option>
                                 <option value="Paquete" {{ old('payment_method') == 'Paquete' ? 'selected' : '' }}>Paquete</option>
+                                <option value="Tarjeta de Regalo" {{ old('payment_method') == 'Tarjeta de Regalo' ? 'selected' : '' }}>Tarjeta de Regalo</option>
                             </select>
                             @error('payment_method') <span class="text-xs text-rose-600">{{ $message }}</span> @enderror
                         </div>

@@ -86,7 +86,7 @@ public function recepcioncitas(Request $request)
             'service'          => 'required|string|max:150',
             'status'           => 'required|in:Pendiente,Completada,Cancelada',
             'price'            => 'required|numeric|min:0',
-            'payment_method'   => 'required|in:Efectivo,Tarjeta,Transferencia,Paquete',
+            'payment_method'   => 'required|in:Efectivo,Tarjeta,Transferencia,Paquete,Tarjeta de Regalo',
             'notes'            => 'nullable|string|max:1000',
         ]);
 
@@ -115,7 +115,7 @@ public function recepcioncitas(Request $request)
             'service'          => 'required|string|max:150',
             'status'           => 'required|in:Pendiente,Completada,Cancelada',
             'price'            => 'required|numeric|min:0',
-            'payment_method'   => 'required|in:Efectivo,Tarjeta,Transferencia,Paquete',
+            'payment_method'   => 'required|in:Efectivo,Tarjeta,Transferencia,Paquete,Tarjeta de Regalo',
             'notes'            => 'nullable|string|max:1000',
         ]);
 

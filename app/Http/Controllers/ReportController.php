@@ -33,7 +33,12 @@ class ReportController extends Controller
             ->orderBy('appointment_time', 'asc')
             ->get();
 
-        $totalIncome = $appointments->where('status', 'Completada')->sum('price');
+        // --- CALCULAR TOTAL EXCLUYENDO PAQUETES ---
+        $totalIncome = $appointments
+            ->where('status', 'Completada')
+            ->where('payment_method', '!=', 'Paquete')
+            ->sum('price');
+
         $totalAppointments = $appointments->count();
 
         return view('reports.index', compact(
@@ -90,29 +95,10 @@ class ReportController extends Controller
 
         $bodyStyle = (new Style())->withFontSize(10);
 
-        // Estilo de Contabilidad en Dólares ($#,##0.00)
-        /*
-        $currencyStyle = (new Style())
-            ->withFontSize(10)
-            ->withFormat('"$"\#,##0.00');
-
-        // Estilo de Contabilidad para Totales (Negrita + Dólar)
-        $totalCurrencyStyle = (new Style())
-            ->withFontBold(true)
-            ->withFontSize(11)
-            ->withFormat('"$"\#,##0.00');
-
-
-        $totalLabelStyle = (new Style())
-            ->withFontBold(true)
-            ->withFontSize(11);
-            */
-            // Estilo de Contabilidad en Dólares ($35.00, $1,250.00)
         $currencyStyle = (new Style())
             ->withFontSize(10)
             ->withFormat('"$"#,##0.00');
 
-        // Estilo de Contabilidad para Totales (Negrita + Dólar)
         $totalCurrencyStyle = (new Style())
             ->withFontBold(true)
             ->withFontSize(11)
@@ -122,15 +108,18 @@ class ReportController extends Controller
             ->withFontBold(true)
             ->withFontSize(11);
 
-        // --- 1. ENCABEZADO Y FILAS PREVIAS ---
+        // 1. Título principal
         $writer->addRow(Row::fromValues(['Reporte de citas de VitaSpa'], 0.0, $titleStyle));
 
+        // 2. Subtítulo con rango de fechas
         $writer->addRow(Row::fromValues([
             'Período: ' . \Carbon\Carbon::parse($startDate)->format('d/m/Y') . ' al ' . \Carbon\Carbon::parse($endDate)->format('d/m/Y') . ' | Generado: ' . now()->format('d/m/Y h:i A')
         ], 0.0, $subTitleStyle));
 
+        // 3. Espacio en blanco
         $writer->addRow(Row::fromValues(['']));
 
+        // 4. Encabezados
         $headers = [
             'ID',
             'Fecha',
@@ -147,7 +136,7 @@ class ReportController extends Controller
         ];
         $writer->addRow(Row::fromValues($headers, 0.0, $headerStyle));
 
-        // --- 2. FILAS DE CITAS CON FORMATO CONTABLE ---
+        // 5. Filas de citas
         foreach ($appointments as $item) {
             $rowCells = [
                 Cell::fromValue($item->id, $bodyStyle),
@@ -158,7 +147,6 @@ class ReportController extends Controller
                 Cell::fromValue($item->service, $bodyStyle),
                 Cell::fromValue($item->duration_minutes, $bodyStyle),
                 Cell::fromValue($item->attendedBy->name ?? 'N/A', $bodyStyle),
-                // Precio como float con formato de contabilidad en dólares
                 Cell::fromValue((float) $item->price, $currencyStyle),
                 Cell::fromValue($item->payment_method, $bodyStyle),
                 Cell::fromValue($item->status, $bodyStyle),
@@ -168,8 +156,7 @@ class ReportController extends Controller
             $writer->addRow(new Row($rowCells));
         }
 
-        // --- 3. FILA DE TOTALES ---
-        // Suma de citas completadas excluyendo "Paquete"
+        // --- 6. TOTAL EXCLUYENDO PAQUETES ---
         $totalIngresos = $appointments
             ->where('status', 'Completada')
             ->where('payment_method', '!=', 'Paquete')
@@ -185,7 +172,7 @@ class ReportController extends Controller
             Cell::fromValue('', $bodyStyle),
             Cell::fromValue('', $bodyStyle),
             Cell::fromValue('', $bodyStyle),
-            Cell::fromValue('Total Recaudado (Completadas):', $totalLabelStyle),
+            Cell::fromValue('Total Recaudado (Completadas, sin Paquetes):', $totalLabelStyle),
             Cell::fromValue((float) $totalIngresos, $totalCurrencyStyle),
             Cell::fromValue('', $bodyStyle),
             Cell::fromValue('', $bodyStyle),
